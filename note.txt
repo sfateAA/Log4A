@@ -1,0 +1,58 @@
+Log4A:
+ 	设计宗旨：简单易用、方便扩展（目前想到的就是Filter/Intercepter的设计思想）、绝对不能消耗资源耗时间。
+
+
+-------------------------输出目标功能---------------------------------
+	1，输出到控制台：直接对andoird:Log 类作些封装。
+	
+	2，输出到本地文件：文件名字（appname+块号？？？）、文件格式（Header+输出内容+Footer） 输出内容的格式参考控制台输出的格式即可
+		分块功能：可以设置每个快文件的大小
+	
+	3，输出到服务器：这个的如果自定义一套规则的话，设计到服务器段的设计。不如将现有的市面上的几个第三方统计库融和进来。UMeng/TC
+	
+-------------------------过滤功能-------------------------		
+	1，内容过滤：exp="%A%" ---> 仅对内容中含有A字符串的日志信息进行输出
+		
+		对于打印到控制台的日志信息进行过滤，这个价值不大。写文件的话还算有点价值
+		
+	2，类过滤：	targetClass = "com.xxx.example.*"; 
+	   方法过滤：targetMethod = "com.xxx.returnClass MethodName(ParamClass p1, ..)";
+		日志输出代码运行所以在的类/方法必须满足此表达式才会被输出。
+	
+		同样在写文件的时候有些价值。
+		
+		Throwable ex = new Throwable();
+		
+		StackTraceElement[] stackElements = ex.getStackTrace();
+		
+		if(stackElements != null)
+		{
+			for(int i = 0; i < stackElements.length; i++)
+			{
+				System.out.println(stackElements[i].getClassName());
+				System.out.println(stackElements[i].getFileName());
+				System.out.println(stackElements[i].getLineNumber());
+				System.out.println(stackElements[i].getMethodName());
+				System.out.println("-----------------------------------");
+			}
+		}
+-------------------------其他功能-------------------------		
+	1，提供一些小的辅助功能，比如用注解＋AOP的方式，记录一个方法的执行时间
+	2，或者提供一个简单的AOP框架。
+	3，提供一个功能类来记录各大组件的生命周期方法的日志记录
+	4,对已经输出的日志进行统计, 总条数, 输出到控制台的条数， 输出到文件的条数
+	5,加入监听器.
+	6,文件输出方式有简单的单条出入每次都要打开文件关闭文件
+	7,日志队列轮巡方式,减少文件的打开和关闭次数
+	8,增加注解参数注入方式传入参数
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

@@ -1,0 +1,67 @@
+<resources>
+    
+    
+    <string name="log4a_console_onoff">true</string>
+    
+    
+    <string name="log4a_file_onoff">true</string>
+    <string name="log4a_file_name">sss</string>
+    <string name="log4a_file_max">dddd</string>
+    
+    
+    <string name="log4a_content_regular"></string>
+    
+    <string name="log4a_matcher">classname methodname(paramClassname, ..., ..)</string>
+    
+    
+    
+    <!-- ##################################intercepter#######################################  -->
+    <string-array name="log4a_common_intercepter">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+    </string-array>
+
+    <string-array name="log4a_console_intercepter">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+    </string-array>
+    
+    <string-array name="log4a_file_intercepter">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+    </string-array>
+    
+    
+    
+    <!-- ##################################pattern#######################################  -->
+    
+    <string name="log4a_console_pattern"></string>
+    
+    <string name="log4a_file_pattern"></string>
+    
+    
+    
+    
+    <!-- ##################################appender#######################################  -->
+    
+    <string-array name="log4a_console_appender">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+    </string-array>
+    
+    <string-array name="log4a_file_appender">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+    </string-array>
+    
+</resources>
