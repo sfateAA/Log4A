@@ -5,6 +5,51 @@ package com.sfateaa.minilog.core;
  */
 public class LogMeta {
 	
+	public static class Builder {
+		
+		private String className;
+		private String fileName;
+		private int lineNumber;
+		private String methodName;
+		private String content;
+		private String tag;
+		private String date;
+		private Throwable tr;
+		
+		public Builder(int deep) {
+			Throwable ex = new Throwable();
+			
+			StackTraceElement[] stackElements = ex.getStackTrace();
+			
+			if(stackElements != null && deep >= 0 && deep < stackElements.length) {
+				className = stackElements[deep].getClassName();
+				fileName = stackElements[deep].getFileName();
+				lineNumber = stackElements[deep].getLineNumber();
+				methodName = stackElements[deep].getMethodName();
+			}
+		}
+		
+		public void setContent(String content) {
+			this.content = content;
+		}
+		
+		public void setTag(String tag) {
+			this.tag = tag;
+		}
+		
+		public void setDate(String date) {
+			this.date = date;
+		}
+		
+		public void setThrowable(Throwable tr) {
+			this.tr = tr;
+		}
+		
+		public LogMeta build() {
+			return new LogMeta(this);
+		}
+	}
+	
 	public static final String DEFAULT_TAG = "Log4A";
 	
 	/*
@@ -40,6 +85,22 @@ public class LogMeta {
 	private String date;
 	
 	private Throwable tr;
+	
+	/**
+	 * create meta info from trace 
+	 * @param content
+	 * @param tag
+	 * @param trace
+	 */
+	public LogMeta(Builder builder) {
+		this.className = builder.className;
+		this.fileName = builder.fileName;
+		this.lineNumber = builder.lineNumber;
+		this.methodName = builder.methodName;
+		this.content = builder.content;
+		this.tag = builder.tag;
+		this.tr = builder.tr;
+	}
 
 	/**
 	 * create meta info from trace 
@@ -51,7 +112,7 @@ public class LogMeta {
 			StackTraceElement trace) {
 		
 		this(trace.getClassName(), trace.getFileName(), trace.getLineNumber(),
-				trace.getMethodName(), content, tag);
+				trace.getMethodName(), content, tag, null);
 	}
 	
 	/**
@@ -66,7 +127,7 @@ public class LogMeta {
 			String methodName, String content) {
 	
 		this(className, fileName, lineNumber, methodName, content,
-				className + "::" + methodName);
+				className + "::" + methodName, null);
 	}
 	
 	/**
@@ -79,7 +140,7 @@ public class LogMeta {
 	 * @param tag
 	 */
 	public LogMeta(String className, String fileName, int lineNumber,
-			String methodName, String content, String tag) {
+			String methodName, String content, String tag, Throwable tr) {
 		
 		this.className = className;
 		this.fileName = fileName;
@@ -87,6 +148,7 @@ public class LogMeta {
 		this.methodName = methodName;
 		this.content = content;
 		this.tag = tag;
+		this.tr = tr;
 	}
 
 	public String getClassName() {

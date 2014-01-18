@@ -5,19 +5,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import android.graphics.Bitmap.Config;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.sfateaa.minilog.config.LogConfig;
+import com.sfateaa.minilog.config.LogConfigLoader;
 import com.sfateaa.minilog.config.LogConfigLoader.ValuesReader;
 import com.sfateaa.minilog.core.LogContext;
 import com.sfateaa.minilog.core.output.ILogAppender;
@@ -37,13 +38,88 @@ import com.sfateaa.minilog.intercepter.IIntercepter;
  */
 public class LogEngine {
 	
+	public static enum State {
+		ON,PREPAREING,OFF
+	}
+	
+	private static State sState = State.OFF;
+	
+	private static LogEngine sInstance;
+	
+	synchronized public static void startUp(Context androidContext) {
+		if (sInstance == null) {
+			sState = State.PREPAREING;
+			LogConfig logConfig = LogConfigLoader.loadFromValues(androidContext);
+			sInstance = new LogEngine(logConfig);
+			sState = State.ON;
+		}
+	}
+	
+	synchronized public static void startUp(Context androidContext, boolean asyn) {
+		if (asyn) {
+			final Context fAndroidContext = androidContext;
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					startUp(fAndroidContext);
+				}
+			}).start();
+		} else {
+			startUp(androidContext);
+		}
+	}
+	
+	public static void run(LogContext context)  {
+		switch (sState) {
+		case PREPAREING:
+			System.out.println("LogEngine is prepareing, waiting~~~~~");
+			
+			long delayedTime = 600;
+			if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+				// UI thread
+				//block here? NO , Sending message for retrying.
+				final LogContext fContext = context;
+				Handler handler = new Handler();
+				handler.postDelayed(new Runnable() {
+					
+					@Override
+					public void run() {
+						LogEngine.run(fContext);
+					}
+				}, delayedTime);
+				
+			} else {
+				// sub thread
+				try {
+					Thread.sleep(delayedTime);
+					
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			break;
+			
+		case ON:
+			if (sInstance == null) {
+				System.out.println("should not be here ! state is on, but no found engine!");
+				break;
+			}
+			sInstance.startRolling(context);
+			break;
+			
+		case OFF:
+			System.out.println("LogEngine State is Off~~~~~~");
+			break;
+		}
+	}
+	
 	Map<IIntercepter, Map<String,String>> mIntercepterContext;
 	
 	LogContext mContext;
 	
 	Map<LogOutputType, ILogAppender> mAppendersContext;
-	
-	private static LogEngine mInstance;
 	
 	private LogEngine(LogConfig config) {
 		
