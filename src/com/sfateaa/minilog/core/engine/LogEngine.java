@@ -44,6 +44,8 @@ public class LogEngine {
 	
 	private static State sState = State.OFF;
 	
+	private static final int MAX_RETRY = 5;
+	
 	private static LogEngine sInstance;
 	
 	synchronized public static void startUp(Context androidContext) {
@@ -70,22 +72,36 @@ public class LogEngine {
 		}
 	}
 	
+	private static void run(LogContext context, int retryTimes) {
+		
+		System.out.println("--------retry times is " + retryTimes);
+		
+		if (retryTimes > MAX_RETRY) {
+			
+			System.out.println("***********retry times maximizing**********");
+			System.out.println("Do not try again !!!  ");
+			return;
+		}
+		run(context, retryTimes++);
+	}
+	
 	public static void run(LogContext context)  {
 		switch (sState) {
 		case PREPAREING:
 			System.out.println("LogEngine is prepareing, waiting~~~~~");
 			
+			final LogContext fContext = context;
 			long delayedTime = 600;
 			if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
 				// UI thread
 				//block here? NO , Sending message for retrying.
-				final LogContext fContext = context;
+				
 				Handler handler = new Handler();
 				handler.postDelayed(new Runnable() {
 					
 					@Override
 					public void run() {
-						LogEngine.run(fContext);
+						LogEngine.run(fContext, 1);
 					}
 				}, delayedTime);
 				
@@ -93,6 +109,8 @@ public class LogEngine {
 				// sub thread
 				try {
 					Thread.sleep(delayedTime);
+					LogEngine.run(fContext, 1);
+					return;
 					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
